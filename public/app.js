@@ -276,6 +276,12 @@ function renderResult() {
       save("padel.ppl", ppl);
       renderResult();
     };
+    // Use touchstart on mobile to avoid iOS Safari's delayed/ignored click events
+    // on non-button elements; preventDefault stops the emulated click from firing.
+    row.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      toggle();
+    }, { passive: false });
     row.addEventListener("click", toggle);
     row.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
