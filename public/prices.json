@@ -1,0 +1,44 @@
+{
+  "generated_at": "2026-10-24T13:48:27.871Z",
+  "currency": "EUR",
+  "tenant_id": "bc8f5a13-1afa-4c94-90fa-a0116bcf7de9",
+  "fetched_days": 9,
+  "courts": {
+    "5774c0ff-bb9f-4113-852f-aac4167ac4e7": {
+      "name": "Teren 1",
+      "indoor": true,
+      "morning": 20,
+      "peak": 28
+    },
+    "b786943e-34be-442d-8eed-cb7dad9da27c": {
+      "name": "Teren 2",
+      "indoor": true,
+      "morning": 20,
+      "peak": 28
+    },
+    "e77aef34-6aba-47fe-96fa-f0d630efe93d": {
+      "name": "Teren 3",
+      "indoor": true,
+      "morning": 20,
+      "peak": 28
+    },
+    "7552f97d-d1e0-4399-a0c3-ca4c27647eca": {
+      "name": "Teren 4",
+      "indoor": true,
+      "morning": 20,
+      "peak": 28
+    },
+    "a5a1b2fb-3141-4751-b8a5-fda9422d0741": {
+      "name": "Teren 5",
+      "indoor": false,
+      "morning": 20,
+      "peak": 24
+    },
+    "3208e4f9-91d9-4c2c-8785-508460b6b801": {
+      "name": "Teren 6",
+      "indoor": false,
+      "morning": 20,
+      "peak": 24
+    }
+  }
+}

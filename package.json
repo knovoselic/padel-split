@@ -1,0 +1,11 @@
+{
+  "name": "padel-split",
+  "version": "1.0.0",
+  "description": "Podjela troškova padel terena s podrškom za PassSport kartice.",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  }
+}
