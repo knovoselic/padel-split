@@ -32,6 +32,9 @@ jobs:
       - name: Fetch current prices
         run: node scripts/fetch-prices.js
 
+      - name: Generate versioned service worker
+        run: node scripts/build-sw.js
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 

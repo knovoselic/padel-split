@@ -1,15 +1,15 @@
-const CACHE = "padelsplit-v1";
+const CACHE = "padelsplit-mvmj3a3j";
 const ASSETS = [
   "./",
-  "./index.html",
-  "./style.css",
   "./app.js",
-  "./manifest.json",
-  "./prices.json",
+  "./icons/apple-touch-icon.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/maskable-512.png",
-  "./icons/apple-touch-icon.png",
+  "./index.html",
+  "./manifest.json",
+  "./prices.json",
+  "./style.css"
 ];
 
 self.addEventListener("install", (e) => {
