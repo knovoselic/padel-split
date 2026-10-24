@@ -149,6 +149,10 @@ main { max-width: 720px; margin: 0 auto; padding: 12px 12px 8px; }
   padding: 10px 12px; border-radius: 12px;
   background: #f8fafc; border: 1px solid var(--border);
   cursor: pointer; transition: border-color 0.12s ease, background 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  user-select: none;
 }
 .result-row:hover { border-color: var(--primary); }
 .result-row.selected { border-left: 3px solid var(--primary); background: #eefcf5; padding-left: 9px; }

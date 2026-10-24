@@ -239,7 +239,7 @@ function renderResult() {
     const isSel = p.selected;
     const isFree = r.payCents === 0;
     const disc = r.savedCents > 0 ? `<span class="disc">60 min gratis</span>` : "";
-    return `<div class="result-row${isSel ? " selected" : ""}" data-select="${r.idx - 1}" role="button" tabindex="0" aria-pressed="${isSel ? "true" : "false"}">
+    return `<div class="result-row${isSel ? " selected" : ""}" data-select="${r.idx - 1}" role="button" tabindex="0" aria-pressed="${isSel ? "true" : "false"}" ontouchstart="">
       <div class="who">
         <div class="avatar">${r.idx}</div>
         <div class="nm">Igrač ${r.idx}${r.passSport ? ' <span class="free-note">· PassSport</span>' : ""}</div>
