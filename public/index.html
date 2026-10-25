@@ -54,7 +54,26 @@
       <div id="result" class="result"></div>
     </section>
 
-    <p class="footnote">PassSport: prvih 60 min udjela te osobe je besplatno.</p>
+    <p class="footnote">
+      PassSport: prvih 60 min udjela te osobe je besplatno.
+      <span id="priceFresh" class="fresh"></span>
+    </p>
+
+    <div id="installCard" class="install-card hidden">
+      <div class="install-content">
+        <div class="install-text">
+          <strong>Instaliraj PadelSplit</strong>
+          <span>Brži pristup bez tipkanja URL-a.</span>
+        </div>
+        <div class="install-actions">
+          <button id="installBtn" class="install-btn">Instaliraj</button>
+          <button id="installDismiss" class="ghost-btn">Zatvori</button>
+        </div>
+      </div>
+      <div id="installIos" class="install-ios hidden">
+        U Safariju dodirni <strong>Share</strong> pa <strong>Add to Home Screen</strong>.
+      </div>
+    </div>
   </main>
 
   <script src="./app.js"></script>

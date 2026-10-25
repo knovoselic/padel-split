@@ -333,6 +333,7 @@ async function init() {
     const res = await fetch("./prices.json", { cache: "no-cache" });
     if (res.ok) prices = await res.json();
   } catch {}
+  renderPriceFreshness();
 
   renderCourts();
   renderDurations();
@@ -340,10 +341,82 @@ async function init() {
   renderPlayers();
   renderResult();
   bindEvents();
+  setupInstallCard();
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(() => {});
   }
+}
+
+// ---------- Price freshness ----------
+function renderPriceFreshness() {
+  const el = $("priceFresh");
+  if (!el) return;
+  const generated = prices?.generated_at;
+  if (!generated) {
+    el.textContent = "Cijene nisu dostupne.";
+    el.classList.add("stale");
+    return;
+  }
+  const d = new Date(generated);
+  const ageMs = Date.now() - d.getTime();
+  const ageDays = ageMs / (1000 * 60 * 60 * 24);
+  const fmt = new Intl.DateTimeFormat("hr-HR", { day: "numeric", month: "long", year: "numeric" });
+  el.textContent = `Cijene ažurirane: ${fmt.format(d)}.`;
+  if (ageDays > 8) el.classList.add("stale");
+  else el.classList.remove("stale");
+}
+
+// ---------- PWA install prompt ----------
+function setupInstallCard() {
+  const card = $("installCard");
+  const btn = $("installBtn");
+  const dismiss = $("installDismiss");
+  const iosHint = $("installIos");
+  if (!card || !btn || !dismiss) return;
+
+  const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const dismissed = load("padel.installDismissed", false);
+
+  if (isStandalone || dismissed) return;
+
+  let deferredPrompt = null;
+
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    card.classList.remove("hidden");
+  });
+
+  if (isIos) {
+    card.classList.remove("hidden");
+    btn.textContent = "Upute";
+    btn.onclick = () => {
+      iosHint.classList.toggle("hidden");
+    };
+  } else {
+    // For Android/Chrome we wait for beforeinstallprompt; show a gentle fallback after a delay
+    setTimeout(() => {
+      if (!card.classList.contains("hidden")) return;
+      card.classList.remove("hidden");
+      btn.textContent = "Instaliraj";
+      btn.onclick = () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+        } else {
+          // No native prompt available; suggest manual install
+          btn.textContent = "Koristi Share → Add to Home Screen";
+        }
+      };
+    }, 2500);
+  }
+
+  dismiss.onclick = () => {
+    card.classList.add("hidden");
+    save("padel.installDismissed", true);
+  };
 }
 
 document.addEventListener("DOMContentLoaded", init);
