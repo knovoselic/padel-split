@@ -1,4 +1,4 @@
-const CACHE = "padelsplit-mvnweby1";
+const CACHE = "padelsplit-mvnwnns2";
 const ASSETS = [
   "./",
   "./app.js",

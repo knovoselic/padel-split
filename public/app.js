@@ -276,9 +276,45 @@ function renderResult() {
       save("padel.ppl", ppl);
       renderResult();
     };
-    // ontouchstart="" attribute (in HTML) is enough for iOS Safari to treat the
-    // div as clickable. We use click here so scrolling is never blocked.
-    row.addEventListener("click", toggle);
+
+    // Distinguish tap from scroll on touch devices.
+    let touchStart = null;
+    let touchMoved = false;
+    row.addEventListener("touchstart", (e) => {
+      const t = e.touches[0];
+      touchStart = { x: t.clientX, y: t.clientY, time: Date.now() };
+      touchMoved = false;
+    }, { passive: true });
+
+    row.addEventListener("touchmove", (e) => {
+      if (!touchStart) return;
+      const t = e.touches[0];
+      const dx = Math.abs(t.clientX - touchStart.x);
+      const dy = Math.abs(t.clientY - touchStart.y);
+      if (dx > 10 || dy > 10) touchMoved = true;
+    }, { passive: true });
+
+    row.addEventListener("touchend", (e) => {
+      if (!touchStart) return;
+      const t = e.changedTouches[0];
+      const dx = Math.abs(t.clientX - touchStart.x);
+      const dy = Math.abs(t.clientY - touchStart.y);
+      const duration = Date.now() - touchStart.time;
+      const moved = touchMoved || dx > 10 || dy > 10;
+      if (!moved && duration < 300) {
+        e.preventDefault(); // stop emulated click
+        toggle();
+      }
+      touchStart = null;
+      touchMoved = false;
+    }, { passive: false });
+
+    // Click still works for desktop / non-touch, but ignore emulated clicks from touch.
+    row.addEventListener("click", (e) => {
+      if (e.pointerType === "touch") return;
+      toggle();
+    });
+
     row.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
