@@ -362,7 +362,7 @@ function renderPriceFreshness() {
   const ageMs = Date.now() - d.getTime();
   const ageDays = ageMs / (1000 * 60 * 60 * 24);
   const fmt = new Intl.DateTimeFormat("hr-HR", { day: "numeric", month: "long", year: "numeric" });
-  el.textContent = `Cijene ažurirane: ${fmt.format(d)}.`;
+  el.textContent = `Cijene ažurirane: ${fmt.format(d)}`;
   if (ageDays > 8) el.classList.add("stale");
   else el.classList.remove("stale");
 }
