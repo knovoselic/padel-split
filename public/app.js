@@ -186,18 +186,19 @@ function renderPlayers() {
   const el = $("players");
   el.innerHTML = "";
   ppl.forEach((p, i) => {
-    const row = document.createElement("div");
-    row.className = "player-row";
-    row.innerHTML = `
-      <span class="pnum">${i + 1}</span>
-      <span class="pname">Igrač ${i + 1}</span>
-      <label class="switch">
-        <input type="checkbox" ${p.passSport ? "checked" : ""} data-pass="${i}" />
-        <span class="slider"></span>
-      </label>
-      <span class="pass-label${p.passSport ? "" : " off"}">PassSport</span>
-      ${ppl.length > MIN_PLAYERS ? `<button class="del" data-del="${i}" aria-label="Ukloni igrača">&times;</button>` : ""}`;
-    el.appendChild(row);
+    const cell = document.createElement("div");
+    cell.className = "player-cell";
+    cell.innerHTML = `
+      <div class="player-cell-top">
+        <span class="pnum">${i + 1}</span>
+        <label class="switch">
+          <input type="checkbox" ${p.passSport ? "checked" : ""} data-pass="${i}" />
+          <span class="slider"></span>
+        </label>
+        ${ppl.length > MIN_PLAYERS ? `<button class="del" data-del="${i}" aria-label="Ukloni igrača">&times;</button>` : ""}
+      </div>
+      <span class="pass-label${p.passSport ? "" : " off"}">PassSport</span>`;
+    el.appendChild(cell);
   });
 
   el.querySelectorAll('input[data-pass]').forEach((inp) => {
@@ -209,7 +210,8 @@ function renderPlayers() {
     });
   });
   el.querySelectorAll('button[data-del]').forEach((btn) => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
       ppl.splice(Number(btn.dataset.del), 1);
       save("padel.ppl", ppl);
       renderPlayers();
@@ -234,20 +236,28 @@ function renderResult() {
     return;
   }
 
-  const parts = split.rows.map((r) => {
+  const grid = document.createElement("div");
+  grid.className = "result-grid";
+
+  split.rows.forEach((r) => {
     const p = ppl[r.idx - 1];
     const isSel = p.selected;
     const isFree = r.payCents === 0;
-    const disc = r.savedCents > 0 ? `<span class="disc">60 min gratis</span>` : "";
-    return `<div class="result-row${isSel ? " selected" : ""}" data-select="${r.idx - 1}" role="button" tabindex="0" aria-pressed="${isSel ? "true" : "false"}" ontouchstart="">
-      <div class="who">
+    const note = isFree ? '<span class="disc">60 min gratis</span>' : '';
+    const btn = document.createElement("button");
+    btn.className = "result-row" + (isSel ? " selected" : "");
+    btn.type = "button";
+    btn.dataset.select = r.idx - 1;
+    btn.setAttribute("aria-pressed", isSel ? "true" : "false");
+    btn.setAttribute("aria-label", `Igrač ${r.idx}${r.passSport ? " s PassSport" : ""}, ${fmtEURfromCents(r.payCents)}`);
+    btn.innerHTML = `
+      <div class="result-row-top">
         <div class="avatar">${r.idx}</div>
-        <div class="nm">Igrač ${r.idx}${r.passSport ? ' <span class="free-note">· PassSport</span>' : ""}</div>
+        <div class="amount ${isFree ? "free" : ""}">${fmtEURfromCents(r.payCents)}</div>
       </div>
-      <div class="amount ${isFree ? "free" : ""}">${fmtEURfromCents(r.payCents)}${disc}</div>
-      <div class="check" aria-hidden="true">✓</div>
-    </div>`;
-  }).join("");
+      ${r.passSport ? `<div class="result-row-bottom"><span class="free-note">PassSport</span>${note}</div>` : ""}`;
+    grid.appendChild(btn);
+  });
 
   const selectedCents = split.rows
     .filter((r) => ppl[r.idx - 1].selected)
@@ -267,59 +277,16 @@ function renderResult() {
 
   const hint = `<div class="result-hint">Klikni na igrača da ga označiš za grupno plaćanje.</div>`;
 
-  el.innerHTML = parts + groupMeta + meta + hint;
+  el.innerHTML = "";
+  el.appendChild(grid);
+  el.insertAdjacentHTML("beforeend", groupMeta + meta + hint);
 
-  el.querySelectorAll(".result-row[data-select]").forEach((row) => {
-    const toggle = () => {
-      const idx = Number(row.dataset.select);
+  grid.querySelectorAll(".result-row[data-select]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const idx = Number(btn.dataset.select);
       ppl[idx].selected = !ppl[idx].selected;
       save("padel.ppl", ppl);
       renderResult();
-    };
-
-    // Distinguish tap from scroll on touch devices.
-    let touchStart = null;
-    let touchMoved = false;
-    row.addEventListener("touchstart", (e) => {
-      const t = e.touches[0];
-      touchStart = { x: t.clientX, y: t.clientY, time: Date.now() };
-      touchMoved = false;
-    }, { passive: true });
-
-    row.addEventListener("touchmove", (e) => {
-      if (!touchStart) return;
-      const t = e.touches[0];
-      const dx = Math.abs(t.clientX - touchStart.x);
-      const dy = Math.abs(t.clientY - touchStart.y);
-      if (dx > 10 || dy > 10) touchMoved = true;
-    }, { passive: true });
-
-    row.addEventListener("touchend", (e) => {
-      if (!touchStart) return;
-      const t = e.changedTouches[0];
-      const dx = Math.abs(t.clientX - touchStart.x);
-      const dy = Math.abs(t.clientY - touchStart.y);
-      const duration = Date.now() - touchStart.time;
-      const moved = touchMoved || dx > 10 || dy > 10;
-      if (!moved && duration < 300) {
-        e.preventDefault(); // stop emulated click
-        toggle();
-      }
-      touchStart = null;
-      touchMoved = false;
-    }, { passive: false });
-
-    // Click still works for desktop / non-touch, but ignore emulated clicks from touch.
-    row.addEventListener("click", (e) => {
-      if (e.pointerType === "touch") return;
-      toggle();
-    });
-
-    row.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        toggle();
-      }
     });
   });
 }
